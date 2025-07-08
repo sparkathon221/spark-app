@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useEffect } from 'react';
+import ProfilePage from './components/ProfilePage';
 import { 
   Send, 
   Menu, 
@@ -13,7 +14,8 @@ import {
   Star,
   Sun,
   Moon,
-  Plus
+  Plus,
+  MessageCircle
 } from 'lucide-react';
 import { 
   FileText, 
@@ -99,6 +101,7 @@ const products: Product[] = [
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [currentPage, setCurrentPage] = useState<'chat' | 'profile'>('chat');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -274,10 +277,23 @@ function App() {
                 <ShoppingCart className="w-4 h-4" />
               </div>
             )}
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">New Chat</h1>
+            <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+              {currentPage === 'chat' ? 'New Chat' : 'Profile'}
+            </h1>
           </div>
           
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(currentPage === 'chat' ? 'profile' : 'chat')}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
+              title={currentPage === 'chat' ? "View Profile" : "Back to Chat"}
+            >
+              {currentPage === 'chat' ? (
+                <User className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              ) : (
+                <MessageCircle className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              )}
+            </button>
             <button
               onClick={toggleDarkMode}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
@@ -295,98 +311,112 @@ function App() {
           </div>
         </header>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.sender === 'bot' && (
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-              )}
-              
-              <div className={`max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl ${
-                message.sender === 'user' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100'
-              } rounded-lg p-3 shadow-sm`}>
-                <p className="text-sm leading-relaxed">{message.text}</p>
-                <p className={`text-xs mt-1 ${
-                  message.sender === 'user' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
-                }`}>
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto">
+          {currentPage === 'chat' ? (
+            <>
+              {/* Messages */}
+              <div className="p-4 space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    {message.sender === 'bot' && (
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Bot className="w-5 h-5 text-white" />
+                      </div>
+                    )}
+                    
+                    <div className={`max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl ${
+                      message.sender === 'user' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100'
+                    } rounded-lg p-3 shadow-sm`}>
+                      <p className="text-sm leading-relaxed">{message.text}</p>
+                      <p className={`text-xs mt-1 ${
+                        message.sender === 'user' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
+                      }`}>
+                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    
+                    {message.sender === 'user' && (
+                      <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-              
-              {message.sender === 'user' && (
-                <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-              )}
-            </div>
-          ))}
+            </>
+          ) : (
+            <ProfilePage isDarkMode={isDarkMode} />
+          )}
         </div>
 
-        {/* Feature Buttons */}
-        <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
-          <div className="grid grid-cols-4 gap-3 max-w-2xl mx-auto">
-            <button
-              onClick={() => handleFeatureClick('Chat Files')}
-              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 group"
-            >
-              <FileText className="w-5 h-5 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-medium text-red-700 dark:text-red-300">Chat Files</span>
-            </button>
+        {/* Feature Buttons and Input - Only show on chat page */}
+        {currentPage === 'chat' && (
+          <>
+            {/* Feature Buttons */}
+            <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
+              <div className="grid grid-cols-4 gap-3 max-w-2xl mx-auto">
+                <button
+                  onClick={() => handleFeatureClick('Chat Files')}
+                  className="flex flex-col items-center gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 group"
+                >
+                  <FileText className="w-5 h-5 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-medium text-red-700 dark:text-red-300">Chat Files</span>
+                </button>
+                
+                <button
+                  onClick={() => handleFeatureClick('Images')}
+                  className="flex flex-col items-center gap-2 p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-all duration-200 group"
+                >
+                  <Image className="w-5 h-5 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-medium text-orange-700 dark:text-orange-300">Images</span>
+                </button>
+                
+                <button
+                  onClick={() => handleFeatureClick('Translate')}
+                  className="flex flex-col items-center gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200 group"
+                >
+                  <Languages className="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Translate</span>
+                </button>
+                
+                <button
+                  onClick={() => handleFeatureClick('Audio Chat')}
+                  className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 group"
+                >
+                  <Mic className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Audio Chat</span>
+                </button>
+              </div>
+            </div>
             
-            <button
-              onClick={() => handleFeatureClick('Images')}
-              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-all duration-200 group"
-            >
-              <Image className="w-5 h-5 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-medium text-orange-700 dark:text-orange-300">Images</span>
-            </button>
-            
-            <button
-              onClick={() => handleFeatureClick('Translate')}
-              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200 group"
-            >
-              <Languages className="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Translate</span>
-            </button>
-            
-            <button
-              onClick={() => handleFeatureClick('Audio Chat')}
-              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 group"
-            >
-              <Mic className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Audio Chat</span>
-            </button>
-          </div>
-        </div>
-        
-        {/* Input */}
-        <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Ask about products, get recommendations..."
-              className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={!inputText.trim()}
-              className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <Send className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+            {/* Input */}
+            <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  placeholder="Ask about products, get recommendations..."
+                  className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!inputText.trim()}
+                  className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
