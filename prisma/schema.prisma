@@ -16,14 +16,15 @@ datasource db {
 
 
 model Product{
-	product_id String @id @default(auto()) @map("_id") @db.ObjectId
+	product_id String @id @map("_id")
 	name String
 	main_category String
 	sub_category String
-	immage String
+	image String
 	link String
 	ratings String
 	no_of_ratings String
 	discount_price String
 	actual_price String
 } 
+
