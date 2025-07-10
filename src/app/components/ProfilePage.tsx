@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   User, 
   Mail, 
@@ -14,14 +14,36 @@ import {
   Heart,
   Star,
   Award,
-  TrendingUp
+  TrendingUp,
+  X,
+  Save,
+  Camera
 } from 'lucide-react';
 
 interface ProfilePageProps {
   isDarkMode: boolean;
 }
 
+interface ProfileData {
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  profileImage: string;
+}
+
 const ProfilePage: React.FC<ProfilePageProps> = ({ isDarkMode }) => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [profileData, setProfileData] = useState<ProfileData>({
+    name: 'user#404',
+    email: 'user404@gmail.com',
+    phone: '+91 9999999999',
+    location: 'wb, India',
+    profileImage: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=200'
+  });
+
+  const [editFormData, setEditFormData] = useState<ProfileData>(profileData);
+
   const stats = [
     { label: 'Orders', value: '47', icon: Package, color: 'text-blue-600 dark:text-blue-400' },
     { label: 'Wishlist', value: '23', icon: Heart, color: 'text-red-600 dark:text-red-400' },
@@ -65,27 +87,66 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isDarkMode }) => {
     }
   };
 
+  const handleEditProfile = () => {
+    setEditFormData(profileData);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveProfile = () => {
+    setProfileData(editFormData);
+    setIsEditModalOpen(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditFormData(profileData);
+    setIsEditModalOpen(false);
+  };
+
+  const handleInputChange = (field: keyof ProfileData, value: string) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setEditFormData(prev => ({
+          ...prev,
+          profileImage: result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
-
-      {/* Updated Profile Header */}
+      {/* Profile Header */}
       <div className="bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl shadow-md p-6 relative text-white">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="relative">
               <img
-                src="https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=200"
+                src={profileData.profileImage}
                 alt="Profile"
                 className="w-20 h-20 rounded-full border-4 border-white object-cover shadow-md"
               />
               <span className="absolute bottom-0 right-0 block w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold">user#404</h1>
+              <h1 className="text-2xl font-bold">{profileData.name}</h1>
             </div>
           </div>
 
-          <button className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-100 transition">
+          <button 
+            onClick={handleEditProfile}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-100 transition"
+          >
             <Edit3 className="w-4 h-4" />
             Edit Profile
           </button>
@@ -94,18 +155,132 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ isDarkMode }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-white/80 text-sm">
           <div className="flex items-center gap-2">
             <Mail className="w-4 h-4" />
-            <span>user404@gmail.com</span>
+            <span>{profileData.email}</span>
           </div>
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4" />
-            <span>+91 9999999999</span>
+            <span>{profileData.phone}</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4" />
-            <span>wb, India </span>
+            <span>{profileData.location}</span>
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Edit Profile</h2>
+                <button 
+                  onClick={handleCancelEdit}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Profile Image */}
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative">
+                    <img
+                      src={editFormData.profileImage}
+                      alt="Profile"
+                      className="w-24 h-24 rounded-full border-4 border-gray-200 dark:border-gray-600 object-cover"
+                    />
+                    <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 transition">
+                      <Camera className="w-4 h-4" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Click the camera to change photo</p>
+                </div>
+
+                {/* Form Fields */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editFormData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={editFormData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                      placeholder="Enter your email address"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={editFormData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      value={editFormData.location}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                      placeholder="Enter your location"
+                    />
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleCancelEdit}
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveProfile}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
