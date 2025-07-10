@@ -1,9 +1,10 @@
 "use client";
+import ChatInterface from '@/components/chatInterface';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 
 function App() {
 	return (
-		<VoiceRecorder></VoiceRecorder>
+		<ChatInterface></ChatInterface>
 	);
 }
 

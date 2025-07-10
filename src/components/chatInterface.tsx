@@ -14,7 +14,8 @@ import {
 	Sun,
 	Moon,
 	Plus,
-	MessageCircle
+	MessageCircle,
+	Sidebar
 } from 'lucide-react';
 import {
 	FileText,
@@ -23,86 +24,237 @@ import {
 	Mic
 } from 'lucide-react';
 import ProfilePage from '@/components/ProfilePage';
+import IProduct from '@/types/products';
+import IChatMessage from '@/types/message';
 
-interface Product {
-	id: string;
-	name: string;
-	image: string;
-	price: string;
-	rating: number;
-	link: string;
-	category: string;
-}
 
-interface Message {
-	id: string;
-	text: string;
-	sender: 'user' | 'bot';
-	timestamp: Date;
-}
-
-const products: Product[] = [
+const products: IProduct[] = [
 	{
-		id: '1',
-		name: 'Wireless Headphones',
-		image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=300',
-		price: '$149.99',
-		rating: 4.8,
-		link: 'https://example.com/headphones',
-		category: 'Electronics'
+		product_id: "P1001",
+		name: "boAt Rockerz 450 Bluetooth Headphones",
+		image: "https://m.media-amazon.com/images/I/61u48FEs3WL._SL1500_.jpg",
+		link: "https://www.amazon.in/dp/B08GZBFZQW",
+		ratings: "4.2",
+		no_of_ratings: "58,000",
+		discount_price: "₹1,499",
+		actual_price: "₹3,990",
+		main_category: "Electronics",
+		sub_category: "Headphones"
 	},
 	{
-		id: '2',
-		name: 'Smart Watch',
-		image: 'https://images.pexels.com/photos/393047/pexels-photo-393047.jpeg?auto=compress&cs=tinysrgb&w=300',
-		price: '$299.99',
-		rating: 4.6,
-		link: 'https://example.com/smartwatch',
-		category: 'Wearables'
+		product_id: "P1002",
+		name: "Fastrack Reflex Beat+ Smartwatch",
+		image: "https://m.media-amazon.com/images/I/61IMRs+o0iL._SL1500_.jpg",
+		link: "https://www.amazon.in/dp/B0B7YD1DH4",
+		ratings: "4.1",
+		no_of_ratings: "12,500",
+		discount_price: "₹1,299",
+		actual_price: "₹2,995",
+		main_category: "Electronics",
+		sub_category: "Wearables"
 	},
 	{
-		id: '3',
-		name: 'Coffee Maker',
-		image: 'https://images.pexels.com/photos/324028/pexels-photo-324028.jpeg?auto=compress&cs=tinysrgb&w=300',
-		price: '$89.99',
-		rating: 4.9,
-		link: 'https://example.com/coffee-maker',
-		category: 'Kitchen'
+		product_id: "P1003",
+		name: "MI Portable Bluetooth Speaker",
+		image: "https://m.media-amazon.com/images/I/71gmxT3uOVL._SL1500_.jpg",
+		link: "https://www.amazon.in/dp/B08PBW4R62",
+		ratings: "4.3",
+		no_of_ratings: "10,200",
+		discount_price: "₹1,999",
+		actual_price: "₹2,999",
+		main_category: "Electronics",
+		sub_category: "Speakers"
 	},
 	{
-		id: '4',
-		name: 'Desk Lamp',
-		image: 'https://images.pexels.com/photos/1112598/pexels-photo-1112598.jpeg?auto=compress&cs=tinysrgb&w=300',
-		price: '$45.99',
-		rating: 4.5,
-		link: 'https://example.com/desk-lamp',
-		category: 'Home'
+		product_id: "P1004",
+		name: "Wildcraft 44 Ltrs Casual Backpack",
+		image: "https://m.media-amazon.com/images/I/91RX2PZ1SFL._SL1500_.jpg",
+		link: "https://www.amazon.in/dp/B07W4T7T7Y",
+		ratings: "4.5",
+		no_of_ratings: "8,100",
+		discount_price: "₹1,699",
+		actual_price: "₹3,299",
+		main_category: "Fashion",
+		sub_category: "Bags"
 	},
 	{
-		id: '5',
-		name: 'Backpack',
-		image: 'https://images.pexels.com/photos/2905238/pexels-photo-2905238.jpeg?auto=compress&cs=tinysrgb&w=300',
-		price: '$79.99',
-		rating: 4.7,
-		link: 'https://example.com/backpack',
-		category: 'Fashion'
-	},
-	{
-		id: '6',
-		name: 'Bluetooth Speaker',
-		image: 'https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg?auto=compress&cs=tinysrgb&w=300',
-		price: '$119.99',
-		rating: 4.4,
-		link: 'https://example.com/speaker',
-		category: 'Audio'
+		product_id: "P1005",
+		name: "Nike Revolution 6 Running Shoes",
+		image: "https://m.media-amazon.com/images/I/71Jkef3cv1L._SL1500_.jpg",
+		link: "https://www.amazon.in/dp/B097CR8N1H",
+		ratings: "4.4",
+		no_of_ratings: "2,300",
+		discount_price: "₹3,295",
+		actual_price: "₹4,995",
+		main_category: "Fashion",
+		sub_category: "Footwear"
 	}
 ];
 
+const ChatInput = (props: { inputText: string, setInputText: Function, handleSendMessage: Function }) => {
+	const { inputText, setInputText, handleSendMessage } = props;
+	return (
+		<div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
+			<div className="flex gap-2">
+				<input
+					type="text"
+					value={inputText}
+					onChange={(e) => setInputText(e.target.value)}
+					onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+					placeholder="Ask about products, get recommendations..."
+					className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+				/>
+				<button
+					onClick={handleSendMessage}
+					disabled={!inputText.trim()}
+					className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+				>
+					<Send className="w-5 h-5" />
+				</button>
+			</div>
+		</div>
+	)
+}
+
+
+const ProdSideBar = (props: { sidebarOpen: boolean, handleNewChat: Function }) => {
+	const { sidebarOpen, handleNewChat } = props;
+	const renderStars = (rating: number) => {
+		return (
+			<div className="flex items-center gap-1">
+				{[...Array(5)].map((_, i) => (
+					<Star
+						key={i}
+						className={`w-3 h-3 ${i < Math.floor(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-500'}`}
+					/>
+				))}
+				<span className="text-xs text-gray-600 dark:text-gray-400 ml-1">{rating}</span>
+			</div>
+		);
+	};
+	const handleProductClick = (product: Product) => {
+		window.open(product.link, '_blank');
+	};
+	return (
+		<div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden`}>
+			<div className="p-4 border-b border-gray-200 dark:border-gray-700">
+				<div className="flex items-center justify-between">
+					<ShoppingCart className="w-5 h-5 text-blue-600" />
+					<button
+						onClick={handleNewChat}
+						className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500 hover:shadow-sm group"
+						title="Start new chat"
+					>
+						<Plus className="w-4 h-4 text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors group-hover:rotate-90 duration-200" />
+					</button>
+				</div>
+			</div>
+
+			<div className="flex-1 overflow-y-auto p-4 space-y-4">
+				{products.map((product) => (
+					<div
+						key={product.product_id}
+						onClick={() => handleProductClick(product)}
+						className="group cursor-pointer bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-3 neon-hover"
+					>
+						<div className="relative">
+							<img
+								src={product.image}
+								alt={product.name}
+								className="w-full h-32 object-cover rounded-md group-hover:scale-105 transition-transform duration-200"
+							/>
+							<div className="absolute top-2 right-2 bg-white/90 dark:bg-gray-800/90 rounded-full p-1">
+								<Heart className="w-4 h-4 text-gray-600 dark:text-gray-300 hover:text-red-500 transition-colors" />
+							</div>
+						</div>
+
+						<div className="mt-3">
+							<div className="flex items-center justify-between">
+								<span className="text-xs text-blue-600 dark:text-blue-400 font-medium">{product.main_category}</span>
+								<ExternalLink className="w-3 h-3 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+							</div>
+
+							<h3 className="font-medium text-gray-800 dark:text-gray-100 mt-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+								{product.name}
+							</h3>
+
+							{renderStars(parseFloat(product.ratings))}
+
+							<div className="flex items-center justify-between mt-2">
+								<span className="text-lg font-bold text-gray-900 dark:text-gray-50">{product.actual_price}</span>
+								<button className="text-xs bg-blue-600 dark:bg-blue-500 text-white px-2 py-1 rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">
+									View
+								</button>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	)
+
+}
+const ChatHeader = (props: { currentPage: string, setCurrentPage: Function, sidebarOpen: boolean, setSidebarOpen: Function, isDarkMode: boolean, toggleDarkMode: Function }) => {
+	const { setSidebarOpen, sidebarOpen, isDarkMode, toggleDarkMode, currentPage, setCurrentPage } = props;
+	return (
+		<header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
+			<div className="flex items-center gap-3">
+				<button
+					onClick={() => setSidebarOpen(!sidebarOpen)}
+					className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-sm"
+					title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+				>
+					{sidebarOpen ? (
+						<X className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" />
+					) : (
+						<Menu className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" />
+					)}
+				</button>
+				{!sidebarOpen && (
+					<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+						<ShoppingCart className="w-4 h-4" />
+					</div>
+				)}
+				<h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+					{currentPage === 'chat' ? 'New Chat' : 'Profile'}
+				</h1>
+			</div>
+
+			<div className="flex items-center gap-2">
+				<button
+					onClick={() => setCurrentPage(currentPage === 'chat' ? 'profile' : 'chat')}
+					className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
+					title={currentPage === 'chat' ? "View Profile" : "Back to Chat"}
+				>
+					{currentPage === 'chat' ? (
+						<User className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+					) : (
+						<MessageCircle className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+					)}
+				</button>
+				<button
+					onClick={toggleDarkMode}
+					className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
+					title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+				>
+					{isDarkMode ? (
+						<Sun className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
+					) : (
+						<Moon className="w-5 h-5 text-gray-600" />
+					)}
+				</button>
+				<div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+					<Bot className="w-5 h-5 text-white" />
+				</div>
+			</div>
+		</header>
+	)
+}
 function ChatInterface() {
-	const [sidebarOpen, setSidebarOpen] = useState(true);
+	const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [currentPage, setCurrentPage] = useState<'chat' | 'profile'>('chat');
-	const [messages, setMessages] = useState<Message[]>([
+	const [messages, setMessages] = useState<IChatMessage[]>([
 		{
 			id: '1',
 			text: 'Hello! I\'m here to help you find the perfect products. What are you looking for today?',
@@ -123,7 +275,6 @@ function ChatInterface() {
 		]);
 		setInputText('');
 	};
-
 	const handleFeatureClick = (feature: string) => {
 		const featureMessages = {
 			'Chat Files': 'File sharing feature activated! You can now upload and share documents in our conversation.',
@@ -132,7 +283,7 @@ function ChatInterface() {
 			'Audio Chat': 'Audio chat feature activated! Voice communication is now available.'
 		};
 
-		const botResponse: Message = {
+		const botResponse: IChatMessage = {
 			id: Date.now().toString(),
 			text: featureMessages[feature as keyof typeof featureMessages],
 			sender: 'bot',
@@ -168,7 +319,7 @@ function ChatInterface() {
 
 			// Simulate bot response
 			setTimeout(() => {
-				const botResponse: Message = {
+				const botResponse: IChatMessage = {
 					id: (Date.now() + 1).toString(),
 					text: 'I\'d be happy to help you with that! Based on your interest, I\'ve updated the product recommendations in the sidebar. Check out those amazing deals!',
 					sender: 'bot',
@@ -179,137 +330,17 @@ function ChatInterface() {
 		}
 	};
 
-	const handleProductClick = (product: Product) => {
-		window.open(product.link, '_blank');
-	};
 
-	const renderStars = (rating: number) => {
-		return (
-			<div className="flex items-center gap-1">
-				{[...Array(5)].map((_, i) => (
-					<Star
-						key={i}
-						className={`w-3 h-3 ${i < Math.floor(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-500'}`}
-					/>
-				))}
-				<span className="text-xs text-gray-600 dark:text-gray-400 ml-1">{rating}</span>
-			</div>
-		);
-	};
 
 	return (
 		<div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
 			{/* Sidebar */}
-			<div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden`}>
-				<div className="p-4 border-b border-gray-200 dark:border-gray-700">
-					<div className="flex items-center justify-between">
-						<ShoppingCart className="w-5 h-5 text-blue-600" />
-						<button
-							onClick={handleNewChat}
-							className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500 hover:shadow-sm group"
-							title="Start new chat"
-						>
-							<Plus className="w-4 h-4 text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors group-hover:rotate-90 duration-200" />
-						</button>
-					</div>
-				</div>
 
-				<div className="flex-1 overflow-y-auto p-4 space-y-4">
-					{products.map((product) => (
-						<div
-							key={product.id}
-							onClick={() => handleProductClick(product)}
-							className="group cursor-pointer bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-3 neon-hover"
-						>
-							<div className="relative">
-								<img
-									src={product.image}
-									alt={product.name}
-									className="w-full h-32 object-cover rounded-md group-hover:scale-105 transition-transform duration-200"
-								/>
-								<div className="absolute top-2 right-2 bg-white/90 dark:bg-gray-800/90 rounded-full p-1">
-									<Heart className="w-4 h-4 text-gray-600 dark:text-gray-300 hover:text-red-500 transition-colors" />
-								</div>
-							</div>
-
-							<div className="mt-3">
-								<div className="flex items-center justify-between">
-									<span className="text-xs text-blue-600 dark:text-blue-400 font-medium">{product.category}</span>
-									<ExternalLink className="w-3 h-3 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-								</div>
-
-								<h3 className="font-medium text-gray-800 dark:text-gray-100 mt-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-									{product.name}
-								</h3>
-
-								{renderStars(product.rating)}
-
-								<div className="flex items-center justify-between mt-2">
-									<span className="text-lg font-bold text-gray-900 dark:text-gray-50">{product.price}</span>
-									<button className="text-xs bg-blue-600 dark:bg-blue-500 text-white px-2 py-1 rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">
-										View
-									</button>
-								</div>
-							</div>
-						</div>
-					))}
-				</div>
-			</div>
-
+			<ProdSideBar handleNewChat={handleNewChat} sidebarOpen={sidebarOpen}></ProdSideBar>
 			{/* Main Content */}
 			<div className="flex-1 flex flex-col">
 				{/* Header */}
-				<header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
-					<div className="flex items-center gap-3">
-						<button
-							onClick={() => setSidebarOpen(!sidebarOpen)}
-							className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-sm"
-							title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-						>
-							{sidebarOpen ? (
-								<X className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" />
-							) : (
-								<Menu className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" />
-							)}
-						</button>
-						{!sidebarOpen && (
-							<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-								<ShoppingCart className="w-4 h-4" />
-							</div>
-						)}
-						<h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-							{currentPage === 'chat' ? 'New Chat' : 'Profile'}
-						</h1>
-					</div>
-
-					<div className="flex items-center gap-2">
-						<button
-							onClick={() => setCurrentPage(currentPage === 'chat' ? 'profile' : 'chat')}
-							className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
-							title={currentPage === 'chat' ? "View Profile" : "Back to Chat"}
-						>
-							{currentPage === 'chat' ? (
-								<User className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-							) : (
-								<MessageCircle className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-							)}
-						</button>
-						<button
-							onClick={toggleDarkMode}
-							className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
-							title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-						>
-							{isDarkMode ? (
-								<Sun className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
-							) : (
-								<Moon className="w-5 h-5 text-gray-600" />
-							)}
-						</button>
-						<div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-							<Bot className="w-5 h-5 text-white" />
-						</div>
-					</div>
-				</header>
+				<ChatHeader currentPage={currentPage} setCurrentPage={setCurrentPage} setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode}></ChatHeader>
 
 				{/* Content Area */}
 				<div className="flex-1 overflow-y-auto">
@@ -357,7 +388,7 @@ function ChatInterface() {
 				{currentPage === 'chat' && (
 					<>
 						{/* Feature Buttons */}
-						<div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
+						<div className="flex justify-center bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
 							<div className="grid grid-cols-4 gap-3 max-w-2xl mx-auto">
 								<button
 									onClick={() => handleFeatureClick('Chat Files')}
@@ -375,13 +406,6 @@ function ChatInterface() {
 									<span className="text-xs font-medium text-orange-700 dark:text-orange-300">Images</span>
 								</button>
 
-								<button
-									onClick={() => handleFeatureClick('Translate')}
-									className="flex flex-col items-center gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200 group"
-								>
-									<Languages className="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-									<span className="text-xs font-medium text-blue-700 dark:text-blue-300">Translate</span>
-								</button>
 
 								<button
 									onClick={() => handleFeatureClick('Audio Chat')}
@@ -394,25 +418,7 @@ function ChatInterface() {
 						</div>
 
 						{/* Input */}
-						<div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-							<div className="flex gap-2">
-								<input
-									type="text"
-									value={inputText}
-									onChange={(e) => setInputText(e.target.value)}
-									onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-									placeholder="Ask about products, get recommendations..."
-									className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-								/>
-								<button
-									onClick={handleSendMessage}
-									disabled={!inputText.trim()}
-									className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-								>
-									<Send className="w-5 h-5" />
-								</button>
-							</div>
-						</div>
+						<ChatInput setInputText={setInputText} inputText={inputText} handleSendMessage={handleSendMessage} ></ChatInput>
 					</>
 				)}
 			</div>
