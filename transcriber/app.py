@@ -4,7 +4,7 @@ import tempfile
 from flask_cors import CORS
 
 app = Flask(__name__)
-model = whisper.load_model("small")  # Use "small" or "medium" for better accuracy
+model = whisper.load_model("small")  # Use "tiny" or small" or "medium" for better accuracy
 
 CORS(app,origins=["http://localhost:3000"])
 @app.route("/transcribe", methods=["POST"])

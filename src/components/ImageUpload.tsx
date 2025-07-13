@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, FileImage, Loader2 } from 'lucide-react';
 
-const ImageUpload = ({ onImageUpload, onImagesChange, maxFiles = 5, acceptedTypes = ['image/*'] }) => {
+const ImageUpload = ({ onImageUpload, onImagesChange, maxFiles = 1, maxFileSizeInMB = 10, acceptedTypes = ['image/*'] }) => {
 	const [uploadedImages, setUploadedImages] = useState([]);
 	const [dragActive, setDragActive] = useState(false);
 	const [uploading, setUploading] = useState(false);
@@ -17,7 +17,7 @@ const ImageUpload = ({ onImageUpload, onImagesChange, maxFiles = 5, acceptedType
 				}
 				return file.type === type;
 			});
-			const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
+			const isValidSize = file.size <= maxFileSizeInMB * 1024 * 1024;
 			return isValidType && isValidSize;
 		});
 
