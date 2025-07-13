@@ -3,6 +3,7 @@ interface IChatMessage {
 	text: string;
 	sender: 'user' | 'bot';
 	timestamp: Date;
+	products?: IProduct[]; 
 }
 export default IChatMessage;
 export interface IPromptResponse {

@@ -1,27 +1,8 @@
-"use client"
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
 import {
-	Send,
-	Menu,
-	X,
-	User,
-	Bot,
-	ExternalLink,
-	ShoppingCart,
-	Heart,
-	Star,
-	Sun,
-	Moon,
-	Plus,
-	MessageCircle,
-	Sidebar
-} from 'lucide-react';
-import {
-	FileText,
-	Image,
-	Languages,
-	Mic
+	Send, Menu, X, User, Bot, ExternalLink, ShoppingCart,
+	Heart, Star, Sun, Moon, Plus, MessageCircle
 } from 'lucide-react';
 import ProfilePage from '@/components/ProfilePage';
 import IProduct from '@/types/products';
@@ -29,137 +10,100 @@ import IChatMessage from '@/types/message';
 import ImageUpload from '@/components/ImageUpload';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 
+const ChatInput = ({ inputText, setInputText, handleSendMessage }) => (
+	<div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
+		<div className="flex gap-2">
+			<input
+				type="text"
+				value={inputText}
+				onChange={(e) => setInputText(e.target.value)}
+				onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+				placeholder="Ask about products, get recommendations..."
+				className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+			/>
+			<button
+				onClick={handleSendMessage}
+				disabled={!inputText.trim()}
+				className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+			>
+				<Send className="w-5 h-5" />
+			</button>
+		</div>
+	</div>
+);
 
-/*
-const products: IProduct[] = [
-	{
-		product_id: "P1001",
-		name: "boAt Rockerz 450 Bluetooth Headphones",
-		image: "https://m.media-amazon.com/images/I/61u48FEs3WL._SL1500_.jpg",
-		link: "https://www.amazon.in/dp/B08GZBFZQW",
-		ratings: "4.2",
-		no_of_ratings: "58,000",
-		discount_price: "₹1,499",
-		actual_price: "₹3,990",
-		main_category: "Electronics",
-		sub_category: "Headphones"
-	},
-	{
-		product_id: "P1002",
-		name: "Fastrack Reflex Beat+ Smartwatch",
-		image: "https://m.media-amazon.com/images/I/61IMRs+o0iL._SL1500_.jpg",
-		link: "https://www.amazon.in/dp/B0B7YD1DH4",
-		ratings: "4.1",
-		no_of_ratings: "12,500",
-		discount_price: "₹1,299",
-		actual_price: "₹2,995",
-		main_category: "Electronics",
-		sub_category: "Wearables"
-	},
-	{
-		product_id: "P1003",
-		name: "MI Portable Bluetooth Speaker",
-		image: "https://m.media-amazon.com/images/I/71gmxT3uOVL._SL1500_.jpg",
-		link: "https://www.amazon.in/dp/B08PBW4R62",
-		ratings: "4.3",
-		no_of_ratings: "10,200",
-		discount_price: "₹1,999",
-		actual_price: "₹2,999",
-		main_category: "Electronics",
-		sub_category: "Speakers"
-	},
-	{
-		product_id: "P1004",
-		name: "Wildcraft 44 Ltrs Casual Backpack",
-		image: "https://m.media-amazon.com/images/I/91RX2PZ1SFL._SL1500_.jpg",
-		link: "https://www.amazon.in/dp/B07W4T7T7Y",
-		ratings: "4.5",
-		no_of_ratings: "8,100",
-		discount_price: "₹1,699",
-		actual_price: "₹3,299",
-		main_category: "Fashion",
-		sub_category: "Bags"
-	},
-	{
-		product_id: "P1005",
-		name: "Nike Revolution 6 Running Shoes",
-		image: "https://m.media-amazon.com/images/I/71Jkef3cv1L._SL1500_.jpg",
-		link: "https://www.amazon.in/dp/B097CR8N1H",
-		ratings: "4.4",
-		no_of_ratings: "2,300",
-		discount_price: "₹3,295",
-		actual_price: "₹4,995",
-		main_category: "Fashion",
-		sub_category: "Footwear"
-	}
-];
-	*/
+const ChatHeader = ({ currentPage, setCurrentPage, sidebarOpen, setSidebarOpen, isDarkMode, toggleDarkMode }) => (
+	<header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
+		<div className="flex items-center gap-3">
+			<button
+				onClick={() => setSidebarOpen(!sidebarOpen)}
+				className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-sm"
+				title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+			>
+				{sidebarOpen ? (
+					<X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+				) : (
+					<Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+				)}
+			</button>
+			<h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+				{currentPage === 'chat' ? 'New Chat' : 'Profile'}
+			</h1>
+		</div>
 
-const ChatInput = (props: { inputText: string, setInputText: Function, handleSendMessage: Function }) => {
-	const { inputText, setInputText, handleSendMessage } = props;
-	return (
-		<div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-			<div className="flex gap-2">
-				<input
-					type="text"
-					value={inputText}
-					onChange={(e) => setInputText(e.target.value)}
-					onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-					placeholder="Ask about products, get recommendations..."
-					className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-				/>
-				<button
-					onClick={handleSendMessage}
-					disabled={!inputText.trim()}
-					className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-				>
-					<Send className="w-5 h-5" />
-				</button>
+		<div className="flex items-center gap-2">
+			<button
+				onClick={() => setCurrentPage(currentPage === 'chat' ? 'profile' : 'chat')}
+				className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+				title={currentPage === 'chat' ? "View Profile" : "Back to Chat"}
+			>
+				{currentPage === 'chat' ? <User className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
+			</button>
+			<button
+				onClick={toggleDarkMode}
+				className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+			>
+				{isDarkMode ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5" />}
+			</button>
+			<div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+				<Bot className="w-5 h-5 text-white" />
 			</div>
 		</div>
-	)
-}
+	</header>
+);
 
-
-const ProdSideBar = (props: { products: IProduct[], sidebarOpen: boolean, handleNewChat: Function }) => {
-	const { sidebarOpen, handleNewChat, products } = props;
-	const renderStars = (rating: number) => {
-		return (
-			<div className="flex items-center gap-1">
-				{[...Array(5)].map((_, i) => (
-					<Star
-						key={i}
-						className={`w-3 h-3 ${i < Math.floor(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-500'}`}
-					/>
-				))}
-				<span className="text-xs text-gray-600 dark:text-gray-400 ml-1">{rating}</span>
-			</div>
-		);
-	};
+const ProdSideBar = ({ products, sidebarOpen, handleNewChat }) => {
 	const handleProductClick = (product: IProduct) => {
 		window.open(product.link, '_blank');
 	};
+	const renderStars = (rating: number) => (
+		<div className="flex items-center gap-1">
+			{[...Array(5)].map((_, i) => (
+				<Star
+					key={i}
+					className={`w-3 h-3 ${i < Math.floor(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-500'}`}
+				/>
+			))}
+			<span className="text-xs text-gray-600 dark:text-gray-400 ml-1">{rating}</span>
+		</div>
+	);
 	return (
 		<div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden`}>
-			<div className="p-4 border-b border-gray-200 dark:border-gray-700">
-				<div className="flex items-center justify-between">
-					<ShoppingCart className="w-5 h-5 text-blue-600" />
-					<button
-						onClick={handleNewChat}
-						className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500 hover:shadow-sm group"
-						title="Start new chat"
-					>
-						<Plus className="w-4 h-4 text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors group-hover:rotate-90 duration-200" />
-					</button>
-				</div>
+			<div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between">
+				<ShoppingCart className="w-5 h-5 text-blue-600" />
+				<button
+					onClick={handleNewChat}
+					className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500"
+				>
+					<Plus className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+				</button>
 			</div>
-
 			<div className="flex-1 overflow-y-auto p-4 space-y-4">
 				{products.map((product) => (
 					<div
 						key={product.product_id}
 						onClick={() => handleProductClick(product)}
-						className="group cursor-pointer bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-3 neon-hover"
+						className="group cursor-pointer bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-3"
 					>
 						<div className="relative">
 							<img
@@ -171,21 +115,15 @@ const ProdSideBar = (props: { products: IProduct[], sidebarOpen: boolean, handle
 								<Heart className="w-4 h-4 text-gray-600 dark:text-gray-300 hover:text-red-500 transition-colors" />
 							</div>
 						</div>
-
 						<div className="mt-3">
 							<div className="flex items-center justify-between">
 								<span className="text-xs text-blue-600 dark:text-blue-400 font-medium">{product.main_category}</span>
-								<ExternalLink className="w-3 h-3 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+								<ExternalLink className="w-3 h-3 text-gray-400 dark:text-gray-500" />
 							</div>
-
-							<h3 className="font-medium text-gray-800 dark:text-gray-100 mt-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-								{product.name}
-							</h3>
-
+							<h3 className="font-medium text-gray-800 dark:text-gray-100 mt-1">{product.name}</h3>
 							{renderStars(parseFloat(product.ratings))}
-
 							<div className="flex items-center justify-between mt-2">
-								<span className="text-lg font-bold text-gray-900 dark:text-gray-50">{product.actual_price}</span>
+								<span className="text-lg font-bold text-gray-900 dark:text-white">{product.actual_price}</span>
 								<button className="text-xs bg-blue-600 dark:bg-blue-500 text-white px-2 py-1 rounded-full hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">
 									View
 								</button>
@@ -195,69 +133,13 @@ const ProdSideBar = (props: { products: IProduct[], sidebarOpen: boolean, handle
 				))}
 			</div>
 		</div>
-	)
+	);
+};
 
-}
-const ChatHeader = (props: { currentPage: string, setCurrentPage: Function, sidebarOpen: boolean, setSidebarOpen: Function, isDarkMode: boolean, toggleDarkMode: Function }) => {
-	const { setSidebarOpen, sidebarOpen, isDarkMode, toggleDarkMode, currentPage, setCurrentPage } = props;
-	return (
-		<header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
-			<div className="flex items-center gap-3">
-				<button
-					onClick={() => setSidebarOpen(!sidebarOpen)}
-					className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-sm"
-					title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-				>
-					{sidebarOpen ? (
-						<X className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" />
-					) : (
-						<Menu className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" />
-					)}
-				</button>
-				{!sidebarOpen && (
-					<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-						<ShoppingCart className="w-4 h-4" />
-					</div>
-				)}
-				<h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-					{currentPage === 'chat' ? 'New Chat' : 'Profile'}
-				</h1>
-			</div>
-
-			<div className="flex items-center gap-2">
-				<button
-					onClick={() => setCurrentPage(currentPage === 'chat' ? 'profile' : 'chat')}
-					className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
-					title={currentPage === 'chat' ? "View Profile" : "Back to Chat"}
-				>
-					{currentPage === 'chat' ? (
-						<User className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-					) : (
-						<MessageCircle className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-					)}
-				</button>
-				<button
-					onClick={toggleDarkMode}
-					className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
-					title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-				>
-					{isDarkMode ? (
-						<Sun className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
-					) : (
-						<Moon className="w-5 h-5 text-gray-600" />
-					)}
-				</button>
-				<div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-					<Bot className="w-5 h-5 text-white" />
-				</div>
-			</div>
-		</header>
-	)
-}
 function ChatInterface() {
 	const [image, setImage] = useState<Blob | null>(null);
-	const [text, setText] = useState<string>("");
-	const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+	const [text, setText] = useState('');
+	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [currentPage, setCurrentPage] = useState<'chat' | 'profile'>('chat');
 	const [products, setProducts] = useState<IProduct[]>([]);
@@ -269,30 +151,52 @@ function ChatInterface() {
 			timestamp: new Date()
 		}
 	]);
-	const [inputText, setInputText] = useState('');
+
 	const onImageUpload = async (Image) => {
-		console.log(Image);
 		setImage(Image.file);
 	};
+	const onImagesChange = async () => setImage(null);
 
-	const onImagesChange = async (Image) => {
-		setImage(null);
-	};
+	useEffect(() => {
+		document.documentElement.classList.toggle('dark', isDarkMode);
+	}, [isDarkMode]);
 
-	const sendChat = async () => {
-		if (!image) return;
+	const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
+
+	const handleSendMessage = async () => {
+		if (!text.trim() && !image) return;
 
 		const formData = new FormData();
-		formData.append("image", image, "image.png");
+		if (image) formData.append("image", image, "image.png");
 		formData.append("prompt", text);
 		formData.append("top_k", "3");
 
 		const response = await fetch("http://localhost:8000/recommend", {
 			method: "POST",
-			body: formData,
+			body: formData
 		});
 		const result = await response.json();
-		console.log(result);
+
+		const topProducts = result.recommendations?.slice(0, 3) || [];
+
+		const userRequest: IChatMessage = {
+			id: Date.now().toString() + '_user',
+			text: text,
+			sender: 'user',
+			timestamp: new Date()
+		};
+		const botResponse: IChatMessage = {
+			id: Date.now().toString() + '_bot',
+			text: result.response,
+			sender: 'bot',
+			timestamp: new Date(),
+			products: topProducts
+		};
+
+		setMessages(prev => [...prev, userRequest, botResponse]);
+		setProducts(result.recommendations);
+		setText('');
+		setImage(null);
 	};
 
 	const handleNewChat = () => {
@@ -304,140 +208,76 @@ function ChatInterface() {
 				timestamp: new Date()
 			}
 		]);
-		setInputText('');
+		setText('');
 	};
-	const handleFeatureClick = (feature: string) => {
-		const featureMessages = {
-			'Chat Files': 'File sharing feature activated! You can now upload and share documents in our conversation.',
-			'Images': 'Image feature activated! You can now share and analyze images with me.',
-			'Translate': 'Translation feature activated! I can help translate text between different languages.',
-			'Audio Chat': 'Audio chat feature activated! Voice communication is now available.'
-		};
-
-		const botResponse: IChatMessage = {
-			id: Date.now().toString(),
-			text: featureMessages[feature as keyof typeof featureMessages],
-			sender: 'bot',
-			timestamp: new Date()
-		};
-		setMessages(prev => [...prev, botResponse]);
-	};
-
-	// Apply dark mode to document
-	useEffect(() => {
-		if (isDarkMode) {
-			document.documentElement.classList.add('dark');
-		} else {
-			document.documentElement.classList.remove('dark');
-		}
-	}, [isDarkMode]);
-
-	const toggleDarkMode = () => {
-		setIsDarkMode(prevMode => !prevMode);
-	};
-
-	const handleSendMessage = async () => {
-
-		const formData = new FormData();
-		if (image)
-			formData.append("image", image, "image.png");
-		formData.append("prompt", text);
-		formData.append("top_k", "3");
-
-
-		const response = await fetch("http://localhost:8000/recommend", {
-			method: "POST",
-			body: formData,
-		});
-		const result = await response.json();
-
-		const botResponse: IChatMessage = {
-			id: Date.now().toString(),
-			text: result.response,
-			sender: 'bot',
-			timestamp: new Date()
-		};
-		const userRequest: IChatMessage = {
-			id: Date.now().toString(),
-			text: text,
-			sender: 'user',
-			timestamp: new Date()
-		};
-		setMessages(prev => [...prev, botResponse, userRequest]);
-		setProducts(result.recommendations)
-		setInputText('');
-	};
-
-
 
 	return (
-		<div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-			{/* Sidebar */}
-
-			<ProdSideBar handleNewChat={handleNewChat} sidebarOpen={sidebarOpen} products={products}></ProdSideBar>
-			{/* Main Content */}
+		<div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+			<ProdSideBar products={products} sidebarOpen={sidebarOpen} handleNewChat={handleNewChat} />
 			<div className="flex-1 flex flex-col">
-				{/* Header */}
-				<ChatHeader currentPage={currentPage} setCurrentPage={setCurrentPage} setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode}></ChatHeader>
+				<ChatHeader
+					currentPage={currentPage}
+					setCurrentPage={setCurrentPage}
+					sidebarOpen={sidebarOpen}
+					setSidebarOpen={setSidebarOpen}
+					isDarkMode={isDarkMode}
+					toggleDarkMode={toggleDarkMode}
+				/>
 
-				{/* Content Area */}
-				<div className="flex-1 overflow-y-auto">
+				<div className="flex-1 overflow-y-auto p-4 space-y-4">
 					{currentPage === 'chat' ? (
-						<>
-							{/* Messages */}
-							<div className="p-4 space-y-4">
-								{messages.map((message) => (
-									<div
-										key={message.id}
-										className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-									>
-										{message.sender === 'bot' && (
-											<div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-												<Bot className="w-5 h-5 text-white" />
-											</div>
-										)}
-
-										<div className={`max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl ${message.sender === 'user'
-											? 'bg-blue-600 text-white'
-											: 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-100'
-											} rounded-lg p-3 shadow-sm`}>
-											<p className="text-sm leading-relaxed">{message.text}</p>
-											<p className={`text-xs mt-1 ${message.sender === 'user' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
-												}`}>
-												{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-											</p>
-										</div>
-
-										{message.sender === 'user' && (
-											<div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-												<User className="w-5 h-5 text-white" />
-											</div>
-										)}
+						messages.map((message) => (
+							<div
+								key={message.id}
+								className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+							>
+								{message.sender === 'bot' && (
+									<div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+										<Bot className="w-5 h-5 text-white" />
 									</div>
-								))}
+								)}
+								<div className={`max-w-xl ${message.sender === 'user'
+									? 'bg-blue-600 text-white'
+									: 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-white'
+									} rounded-lg p-3 shadow-sm`}>
+									<p className="text-sm">{message.text}</p>
+									<p className="text-xs mt-1 text-right">{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+									{/* Product Carousel */}
+									{message.products?.length > 0 && (
+										<div className="mt-3 flex overflow-x-auto gap-3">
+											{message.products.map((product) => (
+												<div key={product.product_id} className="min-w-[150px] bg-white dark:bg-gray-800 border rounded-lg overflow-hidden">
+													<img src={product.image} alt={product.name} className="h-24 w-full object-cover" />
+													<div className="p-2">
+														<p className="text-xs font-semibold truncate text-gray-800 dark:text-white">{product.name}</p>
+														<p className="text-xs text-blue-600 dark:text-blue-400">{product.discount_price}</p>
+													</div>
+												</div>
+											))}
+										</div>
+									)}
+								</div>
+								{message.sender === 'user' && (
+									<div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+										<User className="w-5 h-5 text-white" />
+									</div>
+								)}
 							</div>
-						</>
+						))
 					) : (
 						<ProfilePage isDarkMode={isDarkMode} />
 					)}
 				</div>
 
-				{/* Feature Buttons and Input - Only show on chat page */}
 				{currentPage === 'chat' && (
 					<>
-						{/* Feature Buttons */}
 						<div className="flex justify-center bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
-
 							<ImageUpload onImageUpload={onImageUpload} onImagesChange={onImagesChange} />
 							<VoiceRecorder setTranscribedMsg={setText} />
-
 						</div>
-
-						{/* Input */}
-						<ChatInput setInputText={setText} inputText={text} handleSendMessage={handleSendMessage} ></ChatInput>
+						<ChatInput setInputText={setText} inputText={text} handleSendMessage={handleSendMessage} />
 					</>
 				)}
-				<button onClick={sendChat}>submit </button>
 			</div>
 		</div>
 	);
