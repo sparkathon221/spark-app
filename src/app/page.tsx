@@ -103,7 +103,9 @@ const ProdSideBar = ({ products, sidebarOpen, handleNewChat }) => {
 					<div
 						key={product.product_id}
 						onClick={() => handleProductClick(product)}
-						className="group cursor-pointer bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 p-3"
+						className="group cursor-pointer bg-white dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 p-3 transition-all duration-300 hover:border-transparent neon-hover"
+
+
 					>
 						<div className="relative">
 							<img
