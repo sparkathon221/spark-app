@@ -13,6 +13,7 @@ def transcribe():
     with tempfile.NamedTemporaryFile(suffix=".webm") as temp_audio:
         file.save(temp_audio.name)
         result = model.transcribe(temp_audio.name)
+        print(result);
         return jsonify({"text": result["text"]})
 
 if __name__ == "__main__":

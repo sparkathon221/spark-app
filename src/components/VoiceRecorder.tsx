@@ -23,18 +23,18 @@ export const VoiceRecorder = ({ setTranscribedMsg }: props) => {
 
 	const startRecording = async () => {
 		if (isRecording) return;
-		
+
 		try {
 			streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
 			recorder.current = new MediaRecorder(streamRef.current);
-			
+
 			// Set up audio level monitoring
 			audioContextRef.current = new AudioContext();
 			analyzerRef.current = audioContextRef.current.createAnalyser();
 			const source = audioContextRef.current.createMediaStreamSource(streamRef.current);
 			source.connect(analyzerRef.current);
 			analyzerRef.current.fftSize = 256;
-			
+
 			// Start monitoring audio levels
 			const monitorAudioLevel = () => {
 				if (analyzerRef.current && isRecording) {
@@ -46,11 +46,11 @@ export const VoiceRecorder = ({ setTranscribedMsg }: props) => {
 				}
 			};
 			monitorAudioLevel();
-			
+
 			recorder.current.addEventListener("dataavailable", (event) => {
 				chunks.current.push(event.data);
 			});
-			
+
 			recorder.current.addEventListener("stop", () => {
 				let webmBlob = new Blob(chunks.current, { type: "audio/webm; codecs=opus" });
 				let url = window.URL.createObjectURL(webmBlob);
@@ -64,16 +64,16 @@ export const VoiceRecorder = ({ setTranscribedMsg }: props) => {
 					audioContextRef.current.close();
 				}
 			});
-			
+
 			recorder.current.start();
 			setIsRecording(true);
 			setRecordingTime(0);
-			
+
 			// Start timer
 			timerRef.current = setInterval(() => {
 				setRecordingTime(prev => prev + 1);
 			}, 1000);
-			
+
 		} catch (error) {
 			console.error("Error starting recording:", error);
 		}
@@ -94,7 +94,7 @@ export const VoiceRecorder = ({ setTranscribedMsg }: props) => {
 		if (isProcessing) return;
 		setIsProcessing(true);
 		if (!webm) return;
-		
+
 		try {
 			const formdata = new FormData();
 			formdata.append("audio", webm, "recording.webm");
@@ -104,8 +104,9 @@ export const VoiceRecorder = ({ setTranscribedMsg }: props) => {
 				body: formdata,
 			});
 			const body = await response.json();
+			console.log(body);
+			console.log(body.text);
 			setTranscribedMsg(body.text);
-			setTranscribeResult(body.text);
 		} catch (error) {
 			console.error("Error transcribing audio:", error);
 		} finally {
@@ -161,7 +162,7 @@ export const VoiceRecorder = ({ setTranscribedMsg }: props) => {
 					className={`relative w-12 h-12 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${getButtonStyle()}`}
 				>
 					{getButtonIcon()}
-					
+
 					{/* Audio level indicator */}
 					{isRecording && (
 						<div className="absolute inset-0 rounded-full border-2 border-red-400 opacity-50"
@@ -179,7 +180,7 @@ export const VoiceRecorder = ({ setTranscribedMsg }: props) => {
 						<div className="text-sm font-medium text-white">
 							{isProcessing ? "Processing..." : isRecording ? "Recording" : "Ready"}
 						</div>
-						
+
 						{isRecording && (
 							<>
 								<div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -189,7 +190,7 @@ export const VoiceRecorder = ({ setTranscribedMsg }: props) => {
 							</>
 						)}
 					</div>
-					
+
 					{/* Audio level bars */}
 					{isRecording && (
 						<div className="flex items-center space-x-1 mt-2">
@@ -198,9 +199,8 @@ export const VoiceRecorder = ({ setTranscribedMsg }: props) => {
 								{[...Array(20)].map((_, i) => (
 									<div
 										key={i}
-										className={`w-1 h-3 rounded-full transition-all duration-100 ${
-											i < (audioLevel / 10) ? 'bg-green-500' : 'bg-gray-600'
-										}`}
+										className={`w-1 h-3 rounded-full transition-all duration-100 ${i < (audioLevel / 10) ? 'bg-green-500' : 'bg-gray-600'
+											}`}
 									/>
 								))}
 							</div>

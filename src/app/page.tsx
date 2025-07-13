@@ -30,6 +30,7 @@ import ImageUpload from '@/components/ImageUpload';
 import { VoiceRecorder } from '@/components/VoiceRecorder';
 
 
+/*
 const products: IProduct[] = [
 	{
 		product_id: "P1001",
@@ -92,6 +93,7 @@ const products: IProduct[] = [
 		sub_category: "Footwear"
 	}
 ];
+	*/
 
 const ChatInput = (props: { inputText: string, setInputText: Function, handleSendMessage: Function }) => {
 	const { inputText, setInputText, handleSendMessage } = props;
@@ -119,8 +121,8 @@ const ChatInput = (props: { inputText: string, setInputText: Function, handleSen
 }
 
 
-const ProdSideBar = (props: { sidebarOpen: boolean, handleNewChat: Function }) => {
-	const { sidebarOpen, handleNewChat } = props;
+const ProdSideBar = (props: { products: IProduct[], sidebarOpen: boolean, handleNewChat: Function }) => {
+	const { sidebarOpen, handleNewChat, products } = props;
 	const renderStars = (rating: number) => {
 		return (
 			<div className="flex items-center gap-1">
@@ -134,7 +136,7 @@ const ProdSideBar = (props: { sidebarOpen: boolean, handleNewChat: Function }) =
 			</div>
 		);
 	};
-	const handleProductClick = (product: Product) => {
+	const handleProductClick = (product: IProduct) => {
 		window.open(product.link, '_blank');
 	};
 	return (
@@ -258,6 +260,7 @@ function ChatInterface() {
 	const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [currentPage, setCurrentPage] = useState<'chat' | 'profile'>('chat');
+	const [products, setProducts] = useState<IProduct[]>([]);
 	const [messages, setMessages] = useState<IChatMessage[]>([
 		{
 			id: '1',
@@ -281,12 +284,15 @@ function ChatInterface() {
 
 		const formData = new FormData();
 		formData.append("image", image, "image.png");
-		formData.append("text", text);
+		formData.append("prompt", text);
+		formData.append("top_k", "3");
 
-		await fetch("/api/upload", {
+		const response = await fetch("http://localhost:8000/recommend", {
 			method: "POST",
 			body: formData,
 		});
+		const result = await response.json();
+		console.log(result);
 	};
 
 	const handleNewChat = () => {
@@ -330,29 +336,36 @@ function ChatInterface() {
 		setIsDarkMode(prevMode => !prevMode);
 	};
 
-	const handleSendMessage = () => {
-		if (inputText.trim()) {
-			const newMessage: Message = {
-				id: Date.now().toString(),
-				text: inputText,
-				sender: 'user',
-				timestamp: new Date()
-			};
+	const handleSendMessage = async () => {
 
-			setMessages(prev => [...prev, newMessage]);
-			setInputText('');
+		const formData = new FormData();
+		if (image)
+			formData.append("image", image, "image.png");
+		formData.append("prompt", text);
+		formData.append("top_k", "3");
 
-			// Simulate bot response
-			setTimeout(() => {
-				const botResponse: IChatMessage = {
-					id: (Date.now() + 1).toString(),
-					text: 'I\'d be happy to help you with that! Based on your interest, I\'ve updated the product recommendations in the sidebar. Check out those amazing deals!',
-					sender: 'bot',
-					timestamp: new Date()
-				};
-				setMessages(prev => [...prev, botResponse]);
-			}, 1000);
-		}
+
+		const response = await fetch("http://localhost:8000/recommend", {
+			method: "POST",
+			body: formData,
+		});
+		const result = await response.json();
+
+		const botResponse: IChatMessage = {
+			id: Date.now().toString(),
+			text: result.response,
+			sender: 'bot',
+			timestamp: new Date()
+		};
+		const userRequest: IChatMessage = {
+			id: Date.now().toString(),
+			text: text,
+			sender: 'user',
+			timestamp: new Date()
+		};
+		setMessages(prev => [...prev, botResponse, userRequest]);
+		setProducts(result.recommendations)
+		setInputText('');
 	};
 
 
@@ -361,7 +374,7 @@ function ChatInterface() {
 		<div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
 			{/* Sidebar */}
 
-			<ProdSideBar handleNewChat={handleNewChat} sidebarOpen={sidebarOpen}></ProdSideBar>
+			<ProdSideBar handleNewChat={handleNewChat} sidebarOpen={sidebarOpen} products={products}></ProdSideBar>
 			{/* Main Content */}
 			<div className="flex-1 flex flex-col">
 				{/* Header */}
@@ -414,16 +427,17 @@ function ChatInterface() {
 					<>
 						{/* Feature Buttons */}
 						<div className="flex justify-center bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
-						
-								<ImageUpload onImageUpload={onImageUpload} onImagesChange={onImagesChange} />
-								<VoiceRecorder setTranscribedMsg={setText} />
-							
+
+							<ImageUpload onImageUpload={onImageUpload} onImagesChange={onImagesChange} />
+							<VoiceRecorder setTranscribedMsg={setText} />
+
 						</div>
 
 						{/* Input */}
-						<ChatInput setInputText={setInputText} inputText={inputText} handleSendMessage={handleSendMessage} ></ChatInput>
+						<ChatInput setInputText={setText} inputText={text} handleSendMessage={handleSendMessage} ></ChatInput>
 					</>
 				)}
+				<button onClick={sendChat}>submit </button>
 			</div>
 		</div>
 	);
