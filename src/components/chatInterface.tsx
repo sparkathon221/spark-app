@@ -251,6 +251,8 @@ const ChatHeader = (props: { currentPage: string, setCurrentPage: Function, side
 	)
 }
 function ChatInterface() {
+	const [image, setImage] = useState<Blob | null>(null);
+	const [text, setText] = useState<string>("");
 	const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [currentPage, setCurrentPage] = useState<'chat' | 'profile'>('chat');
@@ -263,6 +265,27 @@ function ChatInterface() {
 		}
 	]);
 	const [inputText, setInputText] = useState('');
+	const onImageUpload = async (Image) => {
+		console.log(Image);
+		setImage(Image.file);
+	};
+
+	const onImagesChange = async (Image) => {
+		setImage(null);
+	};
+
+	const sendChat = async () => {
+		if (!image) return;
+
+		const formData = new FormData();
+		formData.append("image", image, "image.png");
+		formData.append("text", text);
+
+		await fetch("/api/upload", {
+			method: "POST",
+			body: formData,
+		});
+	};
 
 	const handleNewChat = () => {
 		setMessages([

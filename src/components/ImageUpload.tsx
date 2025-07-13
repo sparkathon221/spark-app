@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, FileImage, Loader2 } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, FileImage, Loader2, Plus } from 'lucide-react';
 
 const ImageUpload = ({ onImageUpload, onImagesChange, maxFiles = 1, maxFileSizeInMB = 10, acceptedTypes = ['image/*'] }) => {
 	const [uploadedImages, setUploadedImages] = useState([]);
@@ -56,12 +56,10 @@ const ImageUpload = ({ onImageUpload, onImagesChange, maxFiles = 1, maxFileSizeI
 			const updatedImages = [...uploadedImages, ...newImages];
 			setUploadedImages(updatedImages);
 
-			// Callback to parent component
 			if (onImagesChange) {
 				onImagesChange(updatedImages);
 			}
 
-			// Individual upload callback
 			if (onImageUpload) {
 				newImages.forEach(image => onImageUpload(image));
 			}
@@ -121,13 +119,14 @@ const ImageUpload = ({ onImageUpload, onImagesChange, maxFiles = 1, maxFileSizeI
 	};
 
 	return (
-		<div className="w-full space-y-4">
+		<div className="w-full max-w-4xl mx-auto">
 			{/* Upload Area */}
 			<div
-				className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${dragActive
-					? 'border-blue-500 bg-blue-50'
-					: 'border-gray-300 hover:border-gray-400'
-					} ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+				className={`relative border-2 border-dashed rounded-xl p-6 transition-all duration-300 ease-in-out ${
+					dragActive
+						? 'border-blue-400 bg-blue-50/10 scale-[1.01]'
+						: 'border-gray-600 bg-gray-800/30 hover:border-gray-500 hover:bg-gray-800/50'
+				} ${uploading ? 'opacity-60 pointer-events-none' : ''} backdrop-blur-sm`}
 				onDragEnter={handleDrag}
 				onDragLeave={handleDrag}
 				onDragOver={handleDrag}
@@ -142,63 +141,87 @@ const ImageUpload = ({ onImageUpload, onImagesChange, maxFiles = 1, maxFileSizeI
 					className="hidden"
 				/>
 
-				<div className="flex flex-col items-center space-y-3">
-					{uploading ? (
-						<Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-					) : (
-						<div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-							<Upload className="w-6 h-6 text-blue-600" />
-						</div>
-					)}
-
-					<div>
-						<p className="text-lg font-medium text-gray-900">
-							{uploading ? 'Uploading...' : 'Upload Images'}
-						</p>
-						<p className="text-sm text-gray-500">
-							Drag and drop images here, or{' '}
-							<button
-								onClick={openFileDialog}
-								className="text-blue-600 hover:text-blue-700 underline"
-								disabled={uploading}
-							>
-								browse
-							</button>
-						</p>
+				<div className="flex items-center justify-center space-x-8">
+					{/* Upload Icon */}
+					<div className="flex-shrink-0">
+						{uploading ? (
+							<div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
+								<Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+							</div>
+						) : (
+							<div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300">
+								<Upload className="w-6 h-6 text-white" />
+							</div>
+						)}
 					</div>
 
-					<div className="flex items-center space-x-4 text-xs text-gray-400">
-						<span>Max {maxFiles} files</span>
-						<span>•</span>
-						<span>Up to 10MB each</span>
-						<span>•</span>
-						<span>JPG, PNG, GIF, WebP</span>
+					{/* Text Content */}
+					<div className="flex-1 text-left">
+						<h3 className="text-lg font-semibold text-white mb-1">
+							{uploading ? 'Uploading Images...' : 'Upload Images'}
+						</h3>
+						<p className="text-gray-400 text-sm mb-3">
+							Drag and drop your images here, or{' '}
+							<button
+								onClick={openFileDialog}
+								className="text-blue-400 hover:text-blue-300 underline font-medium transition-colors"
+								disabled={uploading}
+							>
+								browse files
+							</button>
+						</p>
+						<div className="flex items-center space-x-4 text-xs text-gray-500">
+							<div className="flex items-center space-x-1">
+								<FileImage className="w-3 h-3" />
+								<span>Max {maxFiles} files</span>
+							</div>
+							<div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+							<span>Up to {maxFileSizeInMB}MB each</span>
+							<div className="w-1 h-1 bg-gray-600 rounded-full"></div>
+							<span>JPG, PNG, GIF, WebP</span>
+						</div>
+					</div>
+
+					{/* Browse Button */}
+					<div className="flex-shrink-0">
+						<button
+							onClick={openFileDialog}
+							disabled={uploading}
+							className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+								uploading
+									? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+									: 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-blue-500/20'
+							}`}
+						>
+							<Plus className="w-4 h-4" />
+							<span>Browse</span>
+						</button>
 					</div>
 				</div>
 			</div>
 
 			{/* Uploaded Images Preview */}
 			{uploadedImages.length > 0 && (
-				<div className="space-y-3">
+				<div className="mt-4 space-y-3">
 					<div className="flex items-center justify-between">
-						<h3 className="text-sm font-medium text-gray-900">
+						<h4 className="text-sm font-medium text-gray-300">
 							Uploaded Images ({uploadedImages.length})
-						</h3>
+						</h4>
 						<button
 							onClick={() => {
 								setUploadedImages([]);
 								if (onImagesChange) onImagesChange([]);
 							}}
-							className="text-xs text-gray-500 hover:text-gray-700"
+							className="text-xs text-gray-500 hover:text-red-400 transition-colors"
 						>
 							Clear all
 						</button>
 					</div>
 
-					<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+					<div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
 						{uploadedImages.map((image) => (
 							<div key={image.id} className="relative group">
-								<div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+								<div className="aspect-square bg-gray-800 rounded-xl overflow-hidden ring-1 ring-gray-700 hover:ring-gray-600 transition-all duration-200">
 									<img
 										src={image.url}
 										alt={image.name}
@@ -209,15 +232,17 @@ const ImageUpload = ({ onImageUpload, onImagesChange, maxFiles = 1, maxFileSizeI
 								{/* Remove button */}
 								<button
 									onClick={() => removeImage(image.id)}
-									className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+									className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg hover:scale-110"
 								>
-									<X className="w-3 h-3" />
+									<X className="w-4 h-4" />
 								</button>
 
-								{/* Image info */}
-								<div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-xs rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-									<p className="truncate">{image.name}</p>
-									<p className="text-gray-300">{formatFileSize(image.size)}</p>
+								{/* Image info overlay */}
+								<div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end">
+									<div className="p-3 w-full">
+										<p className="text-white text-xs font-medium truncate">{image.name}</p>
+										<p className="text-gray-300 text-xs">{formatFileSize(image.size)}</p>
+									</div>
 								</div>
 							</div>
 						))}
@@ -225,22 +250,23 @@ const ImageUpload = ({ onImageUpload, onImagesChange, maxFiles = 1, maxFileSizeI
 				</div>
 			)}
 
-			{/* Quick Upload Button */}
-			<div className="flex justify-center">
-				<button
-					onClick={openFileDialog}
-					disabled={uploading || uploadedImages.length >= maxFiles}
-					className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors ${uploading || uploadedImages.length >= maxFiles
-						? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-						: 'bg-blue-600 text-white hover:bg-blue-700'
+			{/* Add More Button */}
+			{uploadedImages.length > 0 && uploadedImages.length < maxFiles && (
+				<div className="mt-4 flex justify-center">
+					<button
+						onClick={openFileDialog}
+						disabled={uploading}
+						className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+							uploading
+								? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+								: 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-blue-500/20 hover:scale-105'
 						}`}
-				>
-					<FileImage className="w-4 h-4" />
-					<span>
-						{uploading ? 'Uploading...' : 'Add More Images'}
-					</span>
-				</button>
-			</div>
+					>
+						<Plus className="w-4 h-4" />
+						<span>Add More Images</span>
+					</button>
+				</div>
+			)}
 		</div>
 	);
 };
