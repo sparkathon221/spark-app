@@ -23,3 +23,15 @@ pip install -r requirements.txt
 ```
 python app.py
 ```
+
+
+
+TODO
+- [ ] autscroll
+- [ ] image css -> pop up
+- [ ] response trim -> beutify
+- [ ] submit loader
+- [ ] post request
+    - [ ] image remove
+    - [ ] prompt remove
+    - [ ] image only submissions
