@@ -246,13 +246,19 @@ function ChatInterface() {
 									{message.products?.length > 0 && (
 										<div className="mt-3 flex overflow-x-auto gap-3">
 											{message.products.map((product) => (
-												<div key={product.product_id} className="min-w-[150px] bg-white dark:bg-gray-800 border rounded-lg overflow-hidden">
+												<a
+													key={product.product_id}
+													href={product.link}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="min-w-[150px] bg-white dark:bg-gray-800 border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+												>
 													<img src={product.image} alt={product.name} className="h-24 w-full object-cover" />
 													<div className="p-2">
 														<p className="text-xs font-semibold truncate text-gray-800 dark:text-white">{product.name}</p>
 														<p className="text-xs text-blue-600 dark:text-blue-400">{product.discount_price}</p>
 													</div>
-												</div>
+												</a>
 											))}
 										</div>
 									)}
