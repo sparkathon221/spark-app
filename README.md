@@ -26,12 +26,9 @@ python app.py
 
 
 
-TODO
-- [ ] autscroll
-- [ ] image css -> pop up
-- [ ] response trim -> beutify
-- [ ] submit loader
-- [ ] post request
-    - [ ] image remove
-    - [ ] prompt remove
-    - [ ] image only submissions
+# Demo
+
+
+https://github.com/user-attachments/assets/021bb2a1-e1fe-402c-b46a-c94fb22c13f4
+
+
